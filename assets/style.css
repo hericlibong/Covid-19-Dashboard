@@ -10,7 +10,7 @@ body{
     border-radius: 5px;
     background-color:darkblue;
     margin:20px;
-    padding:15px;
+    padding:10px;
     position:relative;
     box-shadow: 2px 2px 2px darkblue;
 
@@ -20,7 +20,7 @@ body{
     border-radius: 5px;
     background-color:darkblue;
     margin:20px;
-    padding:18px;
+    padding:10px;
     position:relative;
     box-shadow: 2px 2px 2px darkblue;
 
@@ -66,7 +66,7 @@ body{
     text-align: center;
 }
 
-h3{
+/* h3{
     font-size: 2.5rem;
 }
 
@@ -81,7 +81,7 @@ h6 {
 p{
     font-size: 11px;
 }
-
+ */
 
 .Select-control, .Select-menu-outer, .Select-multi-value-wrapper, .select-up, .is-open .Select-control {
     background-color: #1f2c56;
@@ -105,18 +105,18 @@ p{
   }
   
   /* Track */
-  /* ::-webkit-scrollbar-track {
+  ::-webkit-scrollbar-track {
     background: #1f2c56 !important;
     border-radius: 10px !important;
     display: block !important;
-  } */
+  }
   
   /* Handle */
-  /* ::-webkit-scrollbar-thumb {
+  ::-webkit-scrollbar-thumb {
     background: #192444;
-  } */
+  }
   
   /* Handle on hover */
-  /* ::-webkit-scrollbar-thumb:hover {
+  ::-webkit-scrollbar-thumb:hover {
     background: white !important;
-  }  */
+  } 
