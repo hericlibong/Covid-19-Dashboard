@@ -26,6 +26,16 @@ body{
 
 }
 
+.create_container1{
+    border-radius: 5px;
+    background-color:darkblue;
+    margin:20px;
+    padding:10px;
+    position:relative;
+    box-shadow: 2px 2px 2px darkblue;
+
+}
+
 #header {
 
     align-items: center;

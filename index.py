@@ -39,6 +39,9 @@ covid_data_1 = covid_data.groupby(['date'])[['confirmed', 'deaths', 'recovered',
 #global_cases = covid_data_1['confirmed'].iloc[-1]
 #global_cases_string = "{: ,.0f}".format(global_cases)
 
+covid_data_list = covid_data[['Country/Region', 'Lat', 'Long']]
+dict_of_locations = covid_data_list.set_index('Country/Region')[['Lat', 'Long']].T.to_dict('dict')
+
 #percentage rate rase per/day connfirmed cases
 #rase_percentage_day = str(round(((covid_data_1['confirmed'].iloc[-1] - covid_data_1['confirmed'].iloc[-2])/covid_data_1['confirmed'].iloc[-1])*100, 1))
 
@@ -202,7 +205,22 @@ app.layout = html.Div([
            
        ], className = 'create_container five columns'),
        
-   ], className='row flex-display') 
+      
+       
+      
+       
+   ], className='row flex-display'), 
+   
+    html.Div([
+            html.Div([
+           dcc.Graph(id = 'map_chart', config={'displayModeBar': 'hover'}),
+           
+           
+       ], className = 'create_container1 twelve columns'),
+           
+           
+           
+       ], className = 'row flex-display')
    
 ], id = 'mainContainer', style={'display':'flex', 'flex-direction':'column'})
 
@@ -400,12 +418,15 @@ def update_active(w_countries):
     covid_data_2 = covid_data.groupby(['date', 'Country/Region'])[['confirmed', 'deaths', 'recovered', 'active']].sum().reset_index()
     covid_data_3 = covid_data_2[covid_data_2['Country/Region']==w_countries][['Country/Region', 'date', 'confirmed']].reset_index()
     covid_data_3['daily confirmed'] = covid_data_3['confirmed'] - covid_data_3['confirmed'].shift(1)
+    covid_data_3['Rolling Ave.'] = covid_data_3['daily confirmed'].rolling(window=7).mean()
+
+    
     return {
         'data': [go.Bar(
             x = covid_data_3['date'].tail(30),
             y = covid_data_3['daily confirmed'].tail(30),
             name = 'daily confirmed cases',
-            marker = dict(color='blue'),
+            marker = dict(color='orange'),
             hoverinfo='text',
             hovertext = 
             '<b>Date</b>: ' + covid_data_3['date'].tail(30).astype(str) + '<br>' +
@@ -413,15 +434,27 @@ def update_active(w_countries):
             '<b>Country</b>: ' + covid_data_3['Country/Region'].tail(30).astype(str) + '<br>'
             
             
+        ),
+                 go.Scatter(
+                     x=covid_data_3['date'].tail(30),
+                     y=covid_data_3['Rolling Ave.'].tail(30),
+                     mode='lines',
+                     name='Rolling Average of the last 7 days - daily confirmed cases',
+                     line=dict(width=3, color='#FF00FF'),
+                     hoverinfo='text',
+                     hovertext=
+                    '<b>Date</b>: ' + covid_data_3['date'].tail(30).astype(str) + '<br>' +
+                    '<b>Daily Confirmed Cases</b>: ' + [f'{x:,.0f}' for x in covid_data_3['Rolling Ave.'].tail(30)] + '<br>'
+
+
+            )
             
-            
-               
-        )
+                 
                 
             ],
 
         'layout': go.Layout(
-            title={'text': 'Total Cases: ' + (w_countries),
+            title={'text': 'Last 30 Days Daily Confirmed Cases : ' + (w_countries),
                    'y': 0.93,
                    'x': 0.5,
                    'xanchor': 'center',
@@ -438,14 +471,96 @@ def update_active(w_countries):
                       'bgcolor':'#1f2c56',
                       'xanchor': 'center', 'x':0.5, 'y':-0.7},
             margin=dict(r=0),
-            xaxis=dict(title = '<b>Date</>',
+            xaxis=dict(title = '<b>Date</b>',
                        color = 'white',
                        showline=True,
-                       showgrid=True),
-            yaxis=dict(title = '<b>Daily Confirmed Cases</>',
-                       color = 'white',
+                       showgrid=True,
+                       showticklabels=True,
+                       linecolor='white',
+                       linewidth=1,
+                       ticks='outside',
+                       tickfont =dict(
+                           family='Aerial',
+                           color='white',
+                           size=12
+                        )),
+                    
+            
+            yaxis=dict(title='<b>Daily Confirmed Cases</b>',
+                       color='white',
                        showline=True,
-                       showgrid=True),
+                       showgrid=True,
+                       showticklabels=True,
+                       linecolor='white',
+                       linewidth=1,
+                       ticks='outside',
+                       tickfont=dict(
+                           family='Aerial',
+                           color='white',
+                           size=12
+                       )
+                       ),
+            
+
+        )
+    } 
+    
+
+@app.callback(Output('map_chart', 'figure'),
+              [Input('w_countries','value')])
+
+def update_active(w_countries):
+    covid_data_4 = covid_data.groupby(['Lat', 'Long', 'Country/Region'])[['confirmed', 'deaths', 'recovered', 'active']].max().reset_index()
+    covid_data_5 = covid_data_4[covid_data_4['Country/Region']==w_countries]
+    
+    
+    if w_countries:
+        zoom=2
+        zoom_lat = dict_of_locations[w_countries]['Lat']
+        zoom_long = dict_of_locations[w_countries]['Long']
+
+    
+    return {
+        'data': [go.Scattermapbox(
+            lon = covid_data_5['Long'],
+            lat = covid_data_5['Lat'],
+            mode = 'markers',
+            marker = go.scattermapbox.Marker(size = covid_data_5['confirmed']/1500,
+                                             color = covid_data_5['confirmed'],
+                                             colorscale = 'HSV',
+                                             showscale = False,
+                                             sizemode = 'area',
+                                             opacity = 0.3
+                                             ),
+            
+            
+            hoverinfo='text',
+            hovertext = 
+            '<b>Country</b>: ' + covid_data_5['Country/Region'].astype(str) + '<br>' +
+            '<b>Longitude</b>: ' + covid_data_5['Long'].astype(str) + '<br>' +
+            '<b>Lattitude</b>: ' + covid_data_5['Lat'].astype(str) + '<br>' +
+            '<b>Confirmed Cases</b>: ' + [f'{x:,.0f}' for x in covid_data_5['confirmed']] + '<br>' +
+            '<b>Deaths Cases</b>: ' + [f'{x:,.0f}' for x in covid_data_5['deaths']] + '<br>' +
+            '<b>Recovered Cases</b>: ' + [f'{x:,.0f}' for x in covid_data_5['recovered']] + '<br>' +
+            '<b>Active Cases </b>: ' + [f'{x:,.0f}' for x in covid_data_5['active']] + '<br>' 
+            
+            
+        )],
+
+        'layout': go.Layout(
+            hovermode = 'x',
+            paper_bgcolor='#1f2c56',
+            plot_bgcolor='#1f2c56',
+            margin=dict(r=0, l=0, b=0, t=0),
+            mapbox =dict(
+                
+                accesstoken = 'pk.eyJ1IjoiaGVyaWMiLCJhIjoiY2lwcHh2cHpwMDA1aWhybnBqbHQzOXQydCJ9.4CM5ZOcHIkaSnKnXywwJlA',
+                center = go.layout.mapbox.Center(lat=zoom_lat, lon=zoom_long),
+                style = 'dark',
+                zoom = zoom,
+            ),
+            autosize=True
+            
             
 
         )
