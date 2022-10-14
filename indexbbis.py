@@ -53,6 +53,10 @@ top_ten_confirmed = covid_data_africa.groupby('Country/Region')['confirmed'].max
 # top ten confirmed fig 
 fig = go.Figure(data = [go.Bar(x = top_ten_confirmed['Country/Region'], y = top_ten_confirmed['confirmed'],
                                marker = dict(color = 'orange'),
+                               hoverinfo = 'text',
+                               text = 
+                               '<b>Country</b>: ' + top_ten_confirmed['Country/Region'].astype(str) + '<br>' +
+                               '<b>Cases</b>:' + top_ten_confirmed['confirmed'].astype(str) + '<br>'
                                
                                )])
 fig.update_layout(title = {'text': 'African Top ten Country confirmed Cases', 
@@ -74,6 +78,30 @@ fig.update_layout(title = {'text': 'African Top ten Country confirmed Cases',
                             'x':0.5, 
                             'y':-0.7},
                   margin=dict(r=0),
+                   xaxis = dict(title ='<b>Countries</b>',
+                               color = 'white',
+                               showline=False,
+                               showgrid=False, 
+                               showticklabels=True,
+                               linecolor = 'white', 
+                               linewidth=1,
+                               tickfont = dict(
+                                   family = 'Aerial',
+                                   color = 'white', 
+                                   size = 12
+                               )),
+                  yaxis=dict(title = '<b>Nb of Cases</b>',
+                             color = 'white',
+                             showline = False,
+                             showgrid = False,
+                             showticklabels = True,
+                             linecolor='white',
+                             linewidth=1,
+                             tickfont=dict(
+                              family='Aerial',
+                              color = 'white',
+                              size=12   
+                             ))
                   )
 
 
@@ -81,7 +109,12 @@ fig.update_layout(title = {'text': 'African Top ten Country confirmed Cases',
 top_ten_death = covid_data_africa.groupby('Country/Region')['death'].max().sort_values(ascending=False).reset_index().head(10)
 
 fig2 = go.Figure(data = [go.Bar(x = top_ten_death['Country/Region'], y = top_ten_death['death'],
-                               marker = dict(color = 'orange'),
+                               marker = dict(color = 'red'),
+                               hoverinfo = 'text',
+                               text = 
+                               '<b>Country</b>: ' + top_ten_death['Country/Region'].astype(str) + '<br>' +
+                               '<b>Cases</b>:' + top_ten_death['death'].astype(str) + '<br>'
+                               
                                
                                )])
 fig2.update_layout(title = {'text': 'African Top ten Country Deaths', 
@@ -103,6 +136,30 @@ fig2.update_layout(title = {'text': 'African Top ten Country Deaths',
                             'x':0.5, 
                             'y':-0.7},
                   margin=dict(r=0),
+                  xaxis = dict(title ='<b>Countries</b>',
+                               color = 'white',
+                               showline=False,
+                               showgrid=False, 
+                               showticklabels=True,
+                               linecolor = 'white', 
+                               linewidth=1,
+                               tickfont = dict(
+                                   family = 'Aerial',
+                                   color = 'white', 
+                                   size = 12
+                               )),
+                  yaxis=dict(title = '<b>Nb of Deaths</b>',
+                             color = 'white',
+                             showline = False,
+                             showgrid = False,
+                             showticklabels = True,
+                             linecolor='white',
+                             linewidth=1,
+                             tickfont=dict(
+                              family='Aerial',
+                              color = 'white',
+                              size=12   
+                             ))
                   )
 
 
@@ -111,7 +168,8 @@ app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=devi
 app.layout = html.Div([
     html.Div([
         html.Div([
-            html.Img(src=app.get_asset_url('corona-logo-1.jpg'),
+            html.Img(#src=app.get_asset_url('https://emergencyeducation.org.au/wp-content/uploads/2020/04/covid-19-308839808-1585724824119.jpg'),
+                     src = 'https://emergencyeducation.org.au/wp-content/uploads/2020/04/covid-19-308839808-1585724824119.jpg',
                      id = 'corona-image',
                      style={'height': '60px',
                             'width': 'auto',
