@@ -4,6 +4,7 @@ import dash_core_components as dcc
 from dash.dependencies import Input, Output
 import plotly.graph_objs as go
 import pandas as pd
+import numpy as np
 
 url_confirmed = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv'
 url_deaths = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv'
@@ -34,7 +35,7 @@ covid_data = covid_data.drop(columns=['Province/State', 'recovered'])
 covid_data_1 = covid_data.groupby(['date'])[['confirmed', 'death',]].sum().reset_index()
 
 # select african countries
-covid_data_africa = covid_data.loc[covid_data['Country/Region'].isin(['Algeria', 'Angola', 'Benin', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cameroon', 'Central African Republic', 'Chad', 'Comoros', 'Congo (Brazzaville)', 'Congo (Kinshasa)', "Cote d\\'Ivoire", 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Kenya', 'Liberia', 'Libya', 'Lesotho', 'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'Sao Tome and Principe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Zambia', 'Zimbabwe'])]
+covid_data_africa = covid_data.loc[covid_data['Country/Region'].isin(['Algeria', 'Angola', 'Benin', 'Burkina Faso', 'Burundi', 'Cabo Verde', 'Cameroon', 'Central African Republic', 'Chad', 'Comoros', 'Congo (Brazzaville)', 'Congo (Kinshasa)', "Cote d'Ivoire", 'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini', 'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau', 'Kenya', 'Liberia', 'Libya', 'Lesotho', 'Madagascar', 'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique', 'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'Sao Tome and Principe', 'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa', 'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Zambia', 'Zimbabwe'])]
 covid_data_africa
 covid_data_afr_1 = covid_data_africa.groupby(['date'])[['confirmed', 'death']].sum().reset_index()
 
@@ -48,122 +49,123 @@ covid_data_africa_list = covid_data_africa[['Country/Region', 'Lat', 'Long']]
 dict_of_locations_afr = covid_data_africa_list.set_index('Country/Region')[['Lat','Long']].T.to_dict('dict') 
 
 
-#Top ten country confirmed
-top_ten_confirmed = covid_data_africa.groupby('Country/Region')['confirmed'].max().sort_values(ascending=False).reset_index().head(10)
-# top ten confirmed fig 
-fig = go.Figure(data = [go.Bar(x = top_ten_confirmed['Country/Region'], y = top_ten_confirmed['confirmed'],
-                               marker = dict(color = 'orange'),
-                               hoverinfo = 'text',
-                               text = 
-                               '<b>Country</b>: ' + top_ten_confirmed['Country/Region'].astype(str) + '<br>' +
-                               '<b>Cases</b>:' + top_ten_confirmed['confirmed'].astype(str) + '<br>'
+# #Top ten country confirmed
+# top_ten_confirmed = covid_data_africa.groupby('Country/Region')['confirmed'].max().sort_values(ascending=False).reset_index().head(10)
+# # top ten confirmed fig 
+# fig = go.Figure(data = [go.Bar(x = top_ten_confirmed['Country/Region'], y = top_ten_confirmed['confirmed'],
+#                                marker = dict(color = 'orange'),
+#                                hoverinfo = 'text',
+#                                text = 
+#                                '<b>Country</b>: ' + top_ten_confirmed['Country/Region'].astype(str) + '<br>' +
+#                                '<b>Cases</b>:' + top_ten_confirmed['confirmed'].astype(str) + '<br>'
                                
-                               )])
-fig.update_layout(title = {'text': 'African Top ten Country confirmed Cases', 
-                           'x': 0.5, 
-                           'y': 0.93, 
-                           'xanchor':'center', 
-                           'yanchor': 'top'},
-                  titlefont = {'color':'white',
-                               'size': 20},
-                  font = dict(family='sans-serif',
-                              color = 'white',
-                              size=12),
-                  hovermode = 'closest',
-                  paper_bgcolor='#1f2c56',
-                  plot_bgcolor='#1f2c56',
-                  legend = {'orientation': 'h',
-                            'bgcolor':'#1f2c56',
-                            'xanchor':'center',
-                            'x':0.5, 
-                            'y':-0.7},
-                  margin=dict(r=0),
-                   xaxis = dict(title ='<b>Countries</b>',
-                               color = 'white',
-                               showline=False,
-                               showgrid=False, 
-                               showticklabels=True,
-                               linecolor = 'white', 
-                               linewidth=1,
-                               tickfont = dict(
-                                   family = 'Aerial',
-                                   color = 'white', 
-                                   size = 12
-                               )),
-                  yaxis=dict(title = '<b>Nb of Cases</b>',
-                             color = 'white',
-                             showline = False,
-                             showgrid = False,
-                             showticklabels = True,
-                             linecolor='white',
-                             linewidth=1,
-                             tickfont=dict(
-                              family='Aerial',
-                              color = 'white',
-                              size=12   
-                             ))
-                  )
+#                                )])
+# fig.update_layout(title = {'text': 'African Top ten Country confirmed Cases', 
+#                            'x': 0.5, 
+#                            'y': 0.93, 
+#                            'xanchor':'center', 
+#                            'yanchor': 'top'},
+#                   titlefont = {'color':'white',
+#                                'size': 20},
+#                   font = dict(family='sans-serif',
+#                               color = 'white',
+#                               size=12),
+#                   hovermode = 'closest',
+#                   paper_bgcolor='#1f2c56',
+#                   plot_bgcolor='#1f2c56',
+#                   legend = {'orientation': 'h',
+#                             'bgcolor':'#1f2c56',
+#                             'xanchor':'center',
+#                             'x':0.5, 
+#                             'y':-0.7},
+#                   margin=dict(r=0),
+#                    xaxis = dict(title ='<b>Countries</b>',
+#                                color = 'white',
+#                                showline=False,
+#                                showgrid=False, 
+#                                showticklabels=True,
+#                                linecolor = 'white', 
+#                                linewidth=1,
+#                                tickfont = dict(
+#                                    family = 'Aerial',
+#                                    color = 'white', 
+#                                    size = 12
+#                                )),
+#                   yaxis=dict(title = '<b>Nb of Cases</b>',
+#                              color = 'white',
+#                              showline = False,
+#                              showgrid = False,
+#                              showticklabels = True,
+#                              linecolor='white',
+#                              linewidth=1,
+#                              tickfont=dict(
+#                               family='Aerial',
+#                               color = 'white',
+#                               size=12   
+#                              ))
+#                   )
 
 
-#Top ten country deaths
-top_ten_death = covid_data_africa.groupby('Country/Region')['death'].max().sort_values(ascending=False).reset_index().head(10)
+# #Top ten country deaths
+# top_ten_death = covid_data_africa.groupby('Country/Region')['death'].max().sort_values(ascending=False).reset_index().head(10)
 
-fig2 = go.Figure(data = [go.Bar(x = top_ten_death['Country/Region'], y = top_ten_death['death'],
-                               marker = dict(color = 'red'),
-                               hoverinfo = 'text',
-                               text = 
-                               '<b>Country</b>: ' + top_ten_death['Country/Region'].astype(str) + '<br>' +
-                               '<b>Cases</b>:' + top_ten_death['death'].astype(str) + '<br>'
+# fig2 = go.Figure(data = [go.Bar(x = top_ten_death['Country/Region'], y = top_ten_death['death'],
+#                                marker = dict(color = 'red'),
+#                                hoverinfo = 'text',
+#                                text = 
+#                                '<b>Country</b>: ' + top_ten_death['Country/Region'].astype(str) + '<br>' +
+#                                '<b>Cases</b>:' + top_ten_death['death'].astype(str) + '<br>'
                                
                                
-                               )])
-fig2.update_layout(title = {'text': 'African Top ten Country Deaths', 
-                           'x': 0.5, 
-                           'y': 0.93, 
-                           'xanchor':'center', 
-                           'yanchor': 'top'},
-                  titlefont = {'color':'white',
-                               'size': 20},
-                  font = dict(family='sans-serif',
-                              color = 'white',
-                              size=12),
-                  hovermode = 'closest',
-                  paper_bgcolor='#1f2c56',
-                  plot_bgcolor='#1f2c56',
-                  legend = {'orientation': 'h',
-                            'bgcolor':'#1f2c56',
-                            'xanchor':'center',
-                            'x':0.5, 
-                            'y':-0.7},
-                  margin=dict(r=0),
-                  xaxis = dict(title ='<b>Countries</b>',
-                               color = 'white',
-                               showline=False,
-                               showgrid=False, 
-                               showticklabels=True,
-                               linecolor = 'white', 
-                               linewidth=1,
-                               tickfont = dict(
-                                   family = 'Aerial',
-                                   color = 'white', 
-                                   size = 12
-                               )),
-                  yaxis=dict(title = '<b>Nb of Deaths</b>',
-                             color = 'white',
-                             showline = False,
-                             showgrid = False,
-                             showticklabels = True,
-                             linecolor='white',
-                             linewidth=1,
-                             tickfont=dict(
-                              family='Aerial',
-                              color = 'white',
-                              size=12   
-                             ))
-                  )
+#                                )])
+# fig2.update_layout(title = {'text': 'African Top ten Country Deaths', 
+#                            'x': 0.5, 
+#                            'y': 0.93, 
+#                            'xanchor':'center', 
+#                            'yanchor': 'top'},
+#                   titlefont = {'color':'white',
+#                                'size': 20},
+#                   font = dict(family='sans-serif',
+#                               color = 'white',
+#                               size=12),
+#                   hovermode = 'closest',
+#                   paper_bgcolor='#1f2c56',
+#                   plot_bgcolor='#1f2c56',
+#                   legend = {'orientation': 'h',
+#                             'bgcolor':'#1f2c56',
+#                             'xanchor':'center',
+#                             'x':0.5, 
+#                             'y':-0.7},
+#                   margin=dict(r=0),
+#                   xaxis = dict(title ='<b>Countries</b>',
+#                                color = 'white',
+#                                showline=False,
+#                                showgrid=False, 
+#                                showticklabels=True,
+#                                linecolor = 'white', 
+#                                linewidth=1,
+#                                tickfont = dict(
+#                                    family = 'Aerial',
+#                                    color = 'white', 
+#                                    size = 12
+#                                )),
+#                   yaxis=dict(title = '<b>Nb of Deaths</b>',
+#                              color = 'white',
+#                              showline = False,
+#                              showgrid = False,
+#                              showticklabels = True,
+#                              linecolor='white',
+#                              linewidth=1,
+#                              tickfont=dict(
+#                               family='Aerial',
+#                               color = 'white',
+#                               size=12   
+#                              ))
+#                   )
 
 
 app = dash.Dash(__name__, meta_tags=[{"name": "viewport", "content": "width=device-width"}])
+#server = app.server
 
 app.layout = html.Div([
     html.Div([
@@ -195,41 +197,41 @@ app.layout = html.Div([
     ], id = 'header', className= 'row flex-display', style={'margin-bottom': '25px'}),
 
     html.Div([
-        html.Div([
-            html.H6(children='Global Cases',
-                    style={'textAlign': 'center',
-                           'color': 'white'}),
-            html.P(f"{covid_data_1['confirmed'].iloc[-1]:,.0f}",
-                    style={'textAlign': 'center',
-                           'color': 'orange',
-                           'fontSize': 40}),
-            html.P('new: ' + f"{covid_data_1['confirmed'].iloc[-1] - covid_data_1['confirmed'].iloc[-2]:,.0f}"
-                   + ' (' + str(round(((covid_data_1['confirmed'].iloc[-1] - covid_data_1['confirmed'].iloc[-2]) /
-                                   covid_data_1['confirmed'].iloc[-1]) * 100, 2)) + '%)',
-                   style={'textAlign': 'center',
-                          'color': 'orange',
-                          'fontSize': 15,
-                          'margin-top': '-18px'})
+#         html.Div([
+#             html.H6(children='Global Cases',
+#                     style={'textAlign': 'center',
+#                            'color': 'white'}),
+#             html.P(f"{covid_data_1['confirmed'].iloc[-1]:,.0f}",
+#                     style={'textAlign': 'center',
+#                            'color': 'orange',
+#                            'fontSize': 40}),
+#             html.P('new: ' + f"{covid_data_1['confirmed'].iloc[-1] - covid_data_1['confirmed'].iloc[-2]:,.0f}"
+#                    + ' (' + str(round(((covid_data_1['confirmed'].iloc[-1] - covid_data_1['confirmed'].iloc[-2]) /
+#                                    covid_data_1['confirmed'].iloc[-1]) * 100, 2)) + '%)',
+#                    style={'textAlign': 'center',
+#                           'color': 'orange',
+#                           'fontSize': 15,
+#                           'margin-top': '-18px'})
 
-        ], className='card_container three columns'),
+#         ], className='card_container three columns'),
 
-html.Div([
-            html.H6(children='Global Deaths',
-                    style={'textAlign': 'center',
-                           'color': 'white'}),
-            html.P(f"{covid_data_1['death'].iloc[-1]:,.0f}",
-                    style={'textAlign': 'center',
-                           'color': '#dd1e35',
-                           'fontSize': 40}),
-            html.P('new: ' + f"{covid_data_1['death'].iloc[-1] - covid_data_1['death'].iloc[-2]:,.0f}"
-                   + ' (' + str(round(((covid_data_1['death'].iloc[-1] - covid_data_1['death'].iloc[-2]) /
-                                   covid_data_1['death'].iloc[-1]) * 100, 2)) + '%)',
-                   style={'textAlign': 'center',
-                          'color': '#dd1e35',
-                          'fontSize': 15,
-                          'margin-top': '-18px'})
+# html.Div([
+#             html.H6(children='Global Deaths',
+#                     style={'textAlign': 'center',
+#                            'color': 'white'}),
+#             html.P(f"{covid_data_1['death'].iloc[-1]:,.0f}",
+#                     style={'textAlign': 'center',
+#                            'color': '#dd1e35',
+#                            'fontSize': 40}),
+#             html.P('new: ' + f"{covid_data_1['death'].iloc[-1] - covid_data_1['death'].iloc[-2]:,.0f}"
+#                    + ' (' + str(round(((covid_data_1['death'].iloc[-1] - covid_data_1['death'].iloc[-2]) /
+#                                    covid_data_1['death'].iloc[-1]) * 100, 2)) + '%)',
+#                    style={'textAlign': 'center',
+#                           'color': '#dd1e35',
+#                           'fontSize': 15,
+#                           'margin-top': '-18px'})
 
-        ], className='card_container three columns'),
+#         ], className='card_container three columns'),
 
 html.Div([
             html.H6(children='Global Africa',
@@ -247,7 +249,7 @@ html.Div([
                           'fontSize': 15,
                           'margin-top': '-18px'})
 
-        ], className='card_container three columns'),
+        ], className='card_container six columns'),
 
 html.Div([
             html.H6(children='Global Africa Deaths',
@@ -265,25 +267,25 @@ html.Div([
                           'fontSize': 15,
                           'margin-top': '-18px'})
 
-        ], className='card_container three columns'),
+        ], className='card_container six columns'),
 
     ], className='row flex display'),
     
-    html.Div([
-        html.Div([
+    # html.Div([
+    #     html.Div([
             
-            dcc.Graph(figure = fig, className = 'dcc_compon',
-                      style = {'margin-top': '20px'})
+    #         dcc.Graph(figure = fig, className = 'dcc_compon',
+    #                   style = {'margin-top': '20px'})
             
-        ], className= 'create_container six columns'),
-        html.Div([
+    #     ], className= 'create_container six columns'),
+    #     html.Div([
              
-            dcc.Graph(figure = fig2, className = 'dcc_compon',
-                      style = {'margin-top': '20px'})
+    #         dcc.Graph(figure = fig2, className = 'dcc_compon',
+    #                   style = {'margin-top': '20px'})
             
-        ], className = 'create_container six columns')
+    #     ], className = 'create_container six columns')
     
-    ], className = 'row flex-display'),
+    # ], className = 'row flex-display'),
 
     html.Div([
         html.Div([
